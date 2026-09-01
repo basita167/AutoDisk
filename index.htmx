@@ -1,0 +1,2132 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AutoDisk</title>
+
+<script src="https://unpkg.com/htmx.org@2.0.4"></script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #08090b;
+    --card: #111318;
+    --text: #f4f4f5;
+    --muted: #92959d;
+    --line: #252830;
+    --accent: #00f5c8;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Inter, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+/* NAV */
+
+nav {
+    height: 74px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 7%;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(8,9,11,.94);
+    backdrop-filter: blur(15px);
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: 900;
+    letter-spacing: -1px;
+}
+
+.logo span {
+    color: var(--accent);
+}
+
+nav ul {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+}
+
+nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+nav a:hover {
+    color: white;
+}
+
+
+/* MAIN */
+
+#app {
+    min-height: calc(100vh - 74px);
+}
+
+
+/* HERO */
+
+.hero {
+    min-height: 610px;
+    padding: 90px 7%;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 60px;
+    align-items: center;
+    background:
+        radial-gradient(circle at 80% 40%, #22261a 0, transparent 38%);
+}
+
+.hero-tag {
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+}
+
+.hero h1 {
+    font-size: clamp(48px, 7vw, 92px);
+    line-height: .92;
+    letter-spacing: -5px;
+}
+
+.hero h1 span {
+    color: var(--accent);
+}
+
+.hero p {
+    color: var(--muted);
+    max-width: 520px;
+    line-height: 1.7;
+    margin: 28px 0;
+}
+
+.hero-btn {
+    display: inline-block;
+    background: var(--accent);
+    color: #08090b;
+    padding: 15px 23px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+
+/* FEATURED */
+
+.featured {
+    position: relative;
+}
+
+.featured img {
+    width: 100%;
+    height: 390px;
+    object-fit: cover;
+    border-radius: 1px;
+}
+
+.feature-info {
+    position: absolute;
+    bottom: 22px;
+    left: 22px;
+    right: 22px;
+    background: rgba(8,9,11,.82);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    border: 1px solid #ffffff18;
+}
+
+.feature-info small {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.feature-info h2 {
+    margin-top: 5px;
+    font-size: 25px;
+}
+
+
+/* STATS */
+
+.stats {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.stat {
+    padding: 40px 20px;
+    text-align: center;
+    border-right: 1px solid var(--line);
+}
+
+.stat:last-child {
+    border-right: none;
+}
+
+.stat strong {
+    display: block;
+    font-size: 32px;
+}
+
+.stat span {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+
+/* SECTION */
+
+.section {
+    padding: 90px 7%;
+}
+
+.section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    margin-bottom: 35px;
+}
+
+.section-head h2 {
+    font-size: 40px;
+    letter-spacing: -2px;
+}
+
+.section-head p {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+
+/* SEARCH */
+
+.search {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--line);
+    color: white;
+    padding: 16px;
+    border-radius: 4px;
+    outline: none;
+    margin-bottom: 25px;
+    font-size: 14px;
+}
+
+.search:focus {
+    border-color: var(--accent);
+}
+
+
+/* FILTERS */
+.filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 35px;
+}
+
+.filters button {
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--muted);
+    padding: 11px 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.filters button:hover,
+.filters button.active {
+    background: var(--accent);
+    color: #08090b;
+    border-color: var(--accent);
+}
+
+
+/* VEHICLE GRID */
+
+.vehicle-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.vehicle {
+    background: var(--card);
+    border: 1px solid var(--line);
+    overflow: hidden;
+    transition: .25s;
+}
+
+.vehicle:hover {
+    transform: translateY(-5px);
+    border-color: #4a4d55;
+}
+
+.vehicle-img {
+    position: relative;
+}
+
+.vehicle-img img {
+    width: 100%;
+    height: 230px;
+    object-fit: cover;
+    display: block;
+}
+
+.vehicle-type {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: rgba(0,0,0,.75);
+    padding: 6px 10px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.vehicle-body {
+    padding: 20px;
+}
+
+.vehicle-body h3 {
+    font-size: 21px;
+}
+
+.vehicle-body p {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.specs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid var(--line);
+    margin-top: 18px;
+    padding-top: 15px;
+}
+
+.spec {
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.spec strong {
+    display: block;
+    color: white;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.vehicle-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.price {
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.details {
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+
+/* ABOUT */
+
+.about {
+    padding: 40px 7% 100px;
+}
+
+.about p {
+    max-width: 700px;
+    color: var(--muted);
+    line-height: 1.8;
+}
+
+
+/* VEHICLE DETAIL PAGE */
+
+.detail-page {
+    min-height: calc(100vh - 74px);
+    padding: 40px 7% 100px;
+}
+
+
+/* BACK BUTTON */
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    padding: 12px 18px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-bottom: 40px;
+    transition: .2s;
+}
+
+.back-button:hover {
+    color: #08090b;
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+
+/* DETAIL HERO */
+
+.detail-hero {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+.detail-image {
+    width: 100%;
+    height: 520px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.detail-label {
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    margin-bottom: 15px;
+}
+
+.detail-info h1 {
+    font-size: clamp(45px, 6vw, 80px);
+    line-height: .95;
+    letter-spacing: -4px;
+    margin-bottom: 20px;
+}
+
+.detail-description {
+    color: var(--muted);
+    line-height: 1.8;
+    max-width: 500px;
+    margin-bottom: 35px;
+}
+
+
+/* DETAIL SPECS */
+
+.detail-specs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+}
+
+.detail-spec {
+    padding: 22px;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+}
+
+.detail-spec span {
+    color: var(--muted);
+    display: block;
+    font-size: 10px;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.detail-spec strong {
+    font-size: 18px;
+}
+
+.detail-price {
+    font-size: 30px;
+    font-weight: 900;
+    margin-top: 30px;
+}
+
+
+/* FOOTER */
+
+footer {
+    padding: 55px 7%;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+footer strong {
+    color: white;
+}
+
+
+/* RESPONSIVE */
+
+@media(max-width: 900px) {
+
+    .hero {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .vehicle-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .detail-image {
+        height: 400px;
+    }
+}
+
+
+@media(max-width: 600px) {
+
+    nav ul {
+        display: none;
+    }
+
+    .hero {
+        padding-top: 60px;
+    }
+
+    .vehicle-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stat:nth-child(2) {
+        border-right: none;
+    }
+
+    .section-head {
+        display: block;
+    }
+
+    .section-head p {
+        margin-top: 10px;
+    }
+
+    .detail-image {
+        height: 300px;
+    }
+
+    footer {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
+
+
+.detail-discussion {
+    margin-top: 70px;
+    max-width: 850px;
+    border-top: 1px solid var(--line);
+    padding-top: 45px;
+}
+
+.detail-discussion h2 {
+    font-size: 38px;
+    letter-spacing: -2px;
+    margin-bottom: 25px;
+}
+
+.detail-discussion p {
+    color: var(--muted);
+    line-height: 1.9;
+    font-size: 15px;
+    margin-bottom: 22px;
+}
+</style>
+
+</head>
+
+<body>
+
+<nav>
+
+
+<div class="logo">
+    Auto<span>Disk</span>
+</div>
+
+<ul>
+    <li><a href="#" onclick="showHome()">HOME</a></li>
+    <li><a href="#vehicles" onclick="showHome()">VEHICLES</a></li>
+    <li><a href="#about" onclick="showHome()">ABOUT</a></li>
+</ul>
+ 
+
+</nav>
+
+<!-- EVERYTHING IS RENDERED HERE -->
+
+<main id="app"></main>
+
+<script>
+
+/*
+    VEHICLE DATA
+
+    You can add as many vehicles as you want here.
+*/
+
+const vehicles = [
+
+    {
+        id: 1,
+        name: "Porsche 911 GT3",
+        type: "car",
+        category: "SPORTS CAR",
+        description: "Precision engineered performance with a naturally aspirated flat-six engine and track-focused aerodynamics.",
+        engine: "4.0L Flat-6",
+        power: "502 HP",
+        acceleration: "3.4s",
+        topSpeed: "318 km/h",
+        transmission: "7-Speed PDK",
+        drivetrain: "RWD",
+        price: "$182,000",
+        image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1400&q=85"
+    },
+
+    {
+        id: 2,
+        name: "BMW M4",
+        type: "car",
+        category: "COUPE",
+        description: "A muscular German performance coupe combining everyday usability with serious performance.",
+        engine: "3.0L Twin-Turbo",
+        power: "503 HP",
+        acceleration: "3.5s",
+        topSpeed: "290 km/h",
+        transmission: "8-Speed Auto",
+        drivetrain: "RWD",
+        price: "$82,000",
+        image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1400&q=85"
+    },
+
+    {
+        id: 3,
+        name: "Ducati Panigale V4",
+        type: "bike",
+        category: "SUPERBIKE",
+        description: "Italian superbike engineering built around an aggressive V4 engine and race-derived chassis.",
+        engine: "1103cc V4",
+        power: "215 HP",
+        acceleration: "2.8s",
+        topSpeed: "299 km/h",
+        transmission: "6-Speed",
+        drivetrain: "Chain",
+        price: "$27,000",
+        image: "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=1400&q=85"
+    },
+
+    {
+        id: 4,
+        name: "BMW S 1000 RR",
+        type: "bike",
+        category: "SUPERBIKE",
+        description: "A technologically advanced superbike designed to deliver devastating performance on the road and track.",
+        engine: "999cc Inline-4",
+        power: "205 HP",
+        acceleration: "3.1s",
+        topSpeed: "303 km/h",
+        transmission: "6-Speed",
+        drivetrain: "Chain",
+        price: "$18,000",
+        image: "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=1400&q=85"
+    },
+
+    {
+        id: 5,
+        name: "Ford Mustang",
+        type: "car",
+        category: "MUSCLE",
+        description: "An American muscle icon delivering raw V8 power with an unmistakable road presence.",
+        engine: "5.0L V8",
+        power: "480 HP",
+        acceleration: "4.2s",
+        topSpeed: "250 km/h",
+        transmission: "10-Speed Auto",
+        drivetrain: "RWD",
+        price: "$45,000",
+        image: "https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=1400&q=85"
+    },
+
+    {
+        id: 6,
+        name: "Yamaha R1",
+        type: "bike",
+        category: "SPORTBIKE",
+        description: "A high-revving Japanese superbike combining MotoGP-inspired technology with road-going performance.",
+        engine: "998cc Inline-4",
+        power: "200 HP",
+        acceleration: "3.0s",
+        topSpeed: "299 km/h",
+        transmission: "6-Speed",
+        drivetrain: "Chain",
+        price: "$18,400",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQ9k1ZTNEmUcR6woA_orSsiV5U-dzgXGpYBCfUUdhdHPBVLo1q_H318ck&s=10"
+    },
+
+
+    /* =========================
+       MORE CARS
+       ========================= */
+
+    {
+        id: 7,
+        name: "Lamborghini Huracán",
+        type: "car",
+        category: "SUPERCAR",
+        description: "A dramatic Italian supercar powered by a naturally aspirated V10 and built around aggressive performance.",
+        engine: "5.2L V10",
+        power: "631 HP",
+        acceleration: "2.9s",
+        topSpeed: "325 km/h",
+        transmission: "7-Speed DCT",
+        drivetrain: "AWD",
+        price: "$248,000",
+        image: "https://images.unsplash.com/photo-1544829099-b9a0c07fad1a?auto=format&fit=crop&w=1400&q=85"
+    },
+
+    {
+        id: 8,
+        name: "Ferrari 488 GTB",
+        type: "car",
+        category: "SUPERCAR",
+        description: "A mid-engine Ferrari combining twin-turbo V8 power with classic Italian design and razor-sharp handling.",
+        engine: "3.9L Twin-Turbo V8",
+        power: "661 HP",
+        acceleration: "3.0s",
+        topSpeed: "330 km/h",
+        transmission: "7-Speed DCT",
+        drivetrain: "RWD",
+        price: "$330,000",
+        image: "https://images.unsplash.com/photo-1592198084033-aade902d1aae?auto=format&fit=crop&w=1400&q=85"
+    },
+
+    {
+        id: 9,
+        name: "Audi R8",
+        type: "car",
+        category: "SUPERCAR",
+        description: "A refined everyday supercar combining Audi technology with the character of a naturally aspirated V10.",
+        engine: "5.2L V10",
+        power: "602 HP",
+        acceleration: "3.1s",
+        topSpeed: "331 km/h",
+        transmission: "7-Speed S Tronic",
+        drivetrain: "AWD",
+        price: "$158,000",
+        image: "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&w=1400&q=85"
+    },
+
+    {
+        id: 10,
+        name: "Nissan GT-R",
+        type: "car",
+        category: "JDM ICON",
+        description: "A legendary Japanese performance machine known for brutal acceleration and advanced all-wheel drive.",
+        engine: "3.8L Twin-Turbo V6",
+        power: "565 HP",
+        acceleration: "2.9s",
+        topSpeed: "315 km/h",
+        transmission: "6-Speed DCT",
+        drivetrain: "AWD",
+        price: "$122,000",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsDEevcJ265SBbD0ZymTSo3ETO_u_M6GN79DqNjpA_QEhCd33NXea3mPQ&s=10"
+    },
+
+    {
+        id: 11,
+        name: "McLaren 720S",
+        type: "car",
+        category: "SUPERCAR",
+        description: "A lightweight British supercar built around aerodynamic efficiency and extreme acceleration.",
+        engine: "4.0L Twin-Turbo V8",
+        power: "710 HP",
+        acceleration: "2.9s",
+        topSpeed: "341 km/h",
+        transmission: "7-Speed DCT",
+        drivetrain: "RWD",
+        price: "$310,000",
+        image: "https://www.exoticcarhacks.com/wp-content/uploads/2024/04/banner-4.jpg"
+    },
+
+    {
+        id: 12,
+        name: "Mercedes-AMG GT",
+        type: "car",
+        category: "GRAND TOURER",
+        description: "A powerful German grand tourer blending luxury, long-distance comfort and serious performance.",
+        engine: "4.0L Twin-Turbo V8",
+        power: "577 HP",
+        acceleration: "3.2s",
+        topSpeed: "315 km/h",
+        transmission: "9-Speed Auto",
+        drivetrain: "AWD",
+        price: "$136,000",
+        image: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1400&q=85"
+    },
+
+    {
+        id: 13,
+        name: "Chevrolet Corvette C8",
+        type: "car",
+        category: "AMERICAN SPORTS",
+        description: "A mid-engine American sports car delivering exotic-car proportions without the exotic price.",
+        engine: "6.2L V8",
+        power: "495 HP",
+        acceleration: "2.9s",
+        topSpeed: "312 km/h",
+        transmission: "8-Speed DCT",
+        drivetrain: "RWD",
+        price: "$68,000",
+        image: "https://images.unsplash.com/photo-1553440569-bcc63803a83d?auto=format&fit=crop&w=1400&q=85"
+    },
+
+    {
+        id: 14,
+        name: "Toyota GR Supra",
+        type: "car",
+        category: "JDM SPORTS",
+        description: "A compact Japanese sports coupe built around rear-wheel drive and turbocharged performance.",
+        engine: "3.0L Turbo I6",
+        power: "382 HP",
+        acceleration: "3.9s",
+        topSpeed: "250 km/h",
+        transmission: "8-Speed Auto",
+        drivetrain: "RWD",
+        price: "$56,000",
+        image: "https://images.unsplash.com/photo-1625047509248-ec889cbff17f?auto=format&fit=crop&w=1400&q=85"
+    },
+
+
+    /* =========================
+       MORE BIKES
+       ========================= */
+
+    {
+        id: 15,
+        name: "Kawasaki Ninja H2",
+        type: "bike",
+        category: "HYPERBIKE",
+        description: "A supercharged Japanese hyperbike engineered for extraordinary acceleration and high-speed performance.",
+        engine: "998cc Supercharged",
+        power: "228 HP",
+        acceleration: "2.6s",
+        topSpeed: "337 km/h",
+        transmission: "6-Speed",
+        drivetrain: "Chain",
+        price: "$32,000",
+        image: "https://images.unsplash.com/photo-1609630875171-b1321377ee65?auto=format&fit=crop&w=1400&q=85"
+    },
+
+    {
+        id: 16,
+        name: "Honda CBR1000RR-R",
+        type: "bike",
+        category: "SUPERBIKE",
+        description: "A race-inspired Honda superbike developed with technology derived from Honda's racing program.",
+        engine: "999cc Inline-4",
+        power: "214 HP",
+        acceleration: "2.9s",
+        topSpeed: "299 km/h",
+        transmission: "6-Speed",
+        drivetrain: "Chain",
+        price: "$28,000",
+        image: "https://images.unsplash.com/photo-1591637333184-19aa84b3e01f?auto=format&fit=crop&w=1400&q=85"
+    },
+
+    {
+        id: 17,
+        name: "Suzuki Hayabusa",
+        type: "bike",
+        category: "HYPERSPORT",
+        description: "One of the most recognizable high-speed motorcycles ever created, combining stability with immense performance.",
+        engine: "1340cc Inline-4",
+        power: "187 HP",
+        acceleration: "2.8s",
+        topSpeed: "299 km/h",
+        transmission: "6-Speed",
+        drivetrain: "Chain",
+        price: "$19,000",
+        image: "https://cdn.dealerspike.com/imglib/v1/800x600/imglib/Assets/Inventory/34/F4/34F4D1E6-C60C-430D-BE70-C76868AD596C.jpg"
+    },
+
+    {
+        id: 18,
+        name: "KTM 1290 Super Duke R",
+        type: "bike",
+        category: "NAKED BIKE",
+        description: "A brutally powerful naked motorcycle focused on torque, agility and aggressive street performance.",
+        engine: "1301cc V-Twin",
+        power: "180 HP",
+        acceleration: "3.0s",
+        topSpeed: "280 km/h",
+        transmission: "6-Speed",
+        drivetrain: "Chain",
+        price: "$20,000",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzP2V8Vw-Jv_HPZqsTkmdVgXpQDq8cQPfS9LS4wahFizJ61UTZgmnR4ws&s=10"
+    },
+
+    {
+        id: 19,
+        name: "Triumph Street Triple",
+        type: "bike",
+        category: "NAKED BIKE",
+        description: "A lightweight British streetfighter offering sharp handling and an energetic three-cylinder engine.",
+        engine: "765cc Triple",
+        power: "120 HP",
+        acceleration: "3.4s",
+        topSpeed: "250 km/h",
+        transmission: "6-Speed",
+        drivetrain: "Chain",
+        price: "$12,500",
+        image: "https://images.unsplash.com/photo-1580310614729-ccd69652491d?auto=format&fit=crop&w=1400&q=85"
+    },
+
+    {
+        id: 20,
+        name: "Harley-Davidson Sportster",
+        type: "bike",
+        category: "CRUISER",
+        description: "A modern interpretation of the classic American cruiser, combining traditional styling with modern performance.",
+        engine: "1200cc V-Twin",
+        power: "90 HP",
+        acceleration: "4.0s",
+        topSpeed: "190 km/h",
+        transmission: "6-Speed",
+        drivetrain: "Belt",
+        price: "$14,000",
+        image: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=1400&q=85"
+    }
+
+,
+/* =========================
+   TRUCKS & PICKUPS
+   ========================= */
+
+{
+    id: 21,
+    name: "Ford F-150",
+    type: "truck",
+    category: "FULL-SIZE PICKUP",
+    description: "One of America's most versatile pickups, combining serious towing capability, multiple powertrains and a wide range of work and off-road configurations.",
+    engine: "3.5L EcoBoost V6",
+    power: "382 HP",
+    acceleration: "—",
+    topSpeed: "—",
+    transmission: "10-Speed Auto",
+    drivetrain: "4x4",
+    towing: "13,500 lbs",
+    payload: "2,440 lbs",
+    price: "$40,000+",
+    image: "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?auto=format&fit=crop&w=1400&q=85"
+},
+
+{
+    id: 22,
+    name: "RAM 1500",
+    type: "truck",
+    category: "FULL-SIZE PICKUP",
+    description: "A refined full-size pickup combining strong towing performance with a comfortable interior and multiple powerful engines.",
+    engine: "3.0L Hurricane I6",
+    power: "420 HP",
+    acceleration: "—",
+    topSpeed: "—",
+    transmission: "8-Speed Auto",
+    drivetrain: "4x4",
+    towing: "11,610 lbs",
+    payload: "1,930 lbs",
+    price: "$42,000+",
+    image: "https://images.unsplash.com/photo-1559416523-140ddc3d238c?auto=format&fit=crop&w=1400&q=85"
+},
+
+{
+    id: 23,
+    name: "Chevrolet Silverado 1500",
+    type: "truck",
+    category: "FULL-SIZE PICKUP",
+    description: "A hard-working American pickup offering turbocharged, V8 and diesel powertrains with substantial towing capability.",
+    engine: "3.0L Duramax Turbo-Diesel",
+    power: "305 HP",
+    acceleration: "—",
+    topSpeed: "—",
+    transmission: "10-Speed Auto",
+    drivetrain: "4x4",
+    towing: "13,300 lbs",
+    payload: "—",
+    price: "$38,000+",
+    image: "https://images.unsplash.com/photo-1605893477799-b99e3b8b93fe?auto=format&fit=crop&w=1400&q=85"
+},
+
+{
+    id: 24,
+    name: "Toyota Tacoma",
+    type: "truck",
+    category: "MID-SIZE PICKUP",
+    description: "A rugged midsize pickup designed for everyday driving, hauling and serious off-road adventures.",
+    engine: "2.4L Turbo",
+    power: "278 HP",
+    acceleration: "—",
+    topSpeed: "—",
+    transmission: "8-Speed Auto",
+    drivetrain: "4WD",
+    towing: "Up to 6,500 lbs",
+    payload: "—",
+    price: "$32,000+",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTlMsUST-W1LNOdzLMWYG_IlvbVYvS6mGx1ekNbzNpw3TzsPfZwGZh1o3Bi&s=10"
+},
+
+{
+    id: 25,
+    name: "GMC Sierra 1500",
+    type: "truck",
+    category: "FULL-SIZE PICKUP",
+    description: "A premium full-size pickup combining heavy-duty capability, upscale design and advanced trailering technology.",
+    engine: "6.2L V8",
+    power: "420 HP",
+    acceleration: "—",
+    topSpeed: "—",
+    transmission: "10-Speed Auto",
+    drivetrain: "4WD",
+    towing: "13,000+ lbs",
+    payload: "—",
+    price: "$47,000+",
+    image: "https://images.unsplash.com/photo-1551830820-330a71b99659?auto=format&fit=crop&w=1400&q=85"
+},
+
+{
+    id: 26,
+    name: "Ford Ranger Raptor",
+    type: "truck",
+    category: "OFF-ROAD PICKUP",
+    description: "A performance-focused midsize pickup engineered for high-speed off-road driving with specialized suspension and aggressive styling.",
+    engine: "3.0L Twin-Turbo V6",
+    power: "430 HP",
+    acceleration: "—",
+    topSpeed: "—",
+    transmission: "10-Speed Auto",
+    drivetrain: "4WD",
+    towing: "7,500 lbs",
+    payload: "—",
+    price: "$57,000+",
+    image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1400&q=85"
+},
+
+{
+    id: 27,
+    name: "Toyota Tundra",
+    type: "truck",
+    category: "FULL-SIZE PICKUP",
+    description: "Toyota's full-size pickup offering turbocharged and hybrid power with strong towing and off-road capability.",
+    engine: "3.4L Twin-Turbo V6",
+    power: "389 HP",
+    acceleration: "—",
+    topSpeed: "—",
+    transmission: "10-Speed Auto",
+    drivetrain: "4WD",
+    towing: "Up to 12,000 lbs",
+    payload: "—",
+    price: "$41,000+",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcScUE3jokWaRQa9epjk_sB1sqMKNhDqTcG7k1oL0Seg7Mi6fh4H9S_bY_I&s=10"
+},
+
+{
+    id: 28,
+    name: "Nissan Frontier",
+    type: "truck",
+    category: "MID-SIZE PICKUP",
+    description: "A straightforward midsize pickup built around rugged styling, V6 power and practical everyday capability.",
+    engine: "3.8L V6",
+    power: "310 HP",
+    acceleration: "—",
+    topSpeed: "—",
+    transmission: "9-Speed Auto",
+    drivetrain: "4WD",
+    towing: "Up to 7,150 lbs",
+    payload: "—",
+    price: "$32,000+",
+    image: "https://www.nissan-cdn.net/content/dam/Nissan/mexico/vehicles/frontier/MY21/VLP/PRO4X/Mosaico/Mosaico-16-9-1a.jpg.ximg.l_full_m.smart.jpg"
+},
+
+{
+    id: 29,
+    name: "Chevrolet Colorado ZR2",
+    type: "truck",
+    category: "OFF-ROAD PICKUP",
+    description: "A purpose-built off-road midsize pickup featuring specialized suspension, aggressive tires and trail-focused hardware.",
+    engine: "2.7L Turbo",
+    power: "310 HP",
+    acceleration: "—",
+    topSpeed: "—",
+    transmission: "8-Speed Auto",
+    drivetrain: "4WD",
+    towing: "6,000 lbs",
+    payload: "—",
+    price: "$48,000+",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8bKaXaojaeQqZG8uK6APKHufSazsWa-aXx4RZEQrs4mYXHwZIoZ3YOkU&s=10"
+},
+
+{
+    id: 30,
+    name: "Rivian R1T",
+    type: "truck",
+    category: "ELECTRIC PICKUP",
+    description: "A high-performance electric pickup combining instant torque, impressive off-road capability and a futuristic adventure-focused design.",
+    engine: "Quad Electric Motors",
+    power: "1,025 HP",
+    acceleration: "2.5s",
+    topSpeed: "177 km/h",
+    transmission: "Single-Speed",
+    drivetrain: "AWD",
+    towing: "11,000 lbs",
+    payload: "—",
+    price: "$70,000+",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWQtQzrRU6ZyNOlGe69u8fKTWD9sgvkMfk-UmOYcD_wkNBPptwxubHXBv0&s=10"
+}
+
+];
+
+
+const vehicleDiscussions = {
+
+    1: {
+        title: "Porsche 911 GT3",
+        discussion: `
+            The Porsche 911 GT3 is one of the clearest expressions of Porsche's
+            philosophy of combining road usability with motorsport engineering.
+            Its naturally aspirated flat-six engine delivers its character through
+            high revs rather than forced induction, giving the car an exceptionally
+            responsive throttle and distinctive sound.
+
+            The GT3 is not simply about straight-line acceleration. Much of its
+            appeal comes from its chassis, steering precision, braking performance
+            and aerodynamic design. The large rear wing and carefully engineered
+            bodywork provide meaningful aerodynamic performance at higher speeds.
+
+            For enthusiasts, the 911 GT3 represents a rare modern sports car that
+            still places mechanical involvement at the center of the driving
+            experience.
+        `
+    },
+
+    2: {
+        title: "BMW M4",
+        discussion: `
+            The BMW M4 takes the familiar 4 Series coupe and transforms it into
+            a serious performance machine. Its turbocharged straight-six engine
+            produces substantial power while retaining the smooth and responsive
+            character associated with BMW's inline-six engines.
+
+            What makes the M4 particularly interesting is its ability to operate
+            in two worlds. It can be used as a comfortable daily driver, yet with
+            its performance settings adjusted it becomes an aggressive sports
+            coupe capable of delivering rapid acceleration and sharp handling.
+
+            The combination of rear-wheel-drive dynamics, powerful brakes,
+            sophisticated suspension and a driver-focused cockpit gives the M4
+            a strong position among modern performance coupes.
+        `
+    },
+
+    3: {
+        title: "Ducati Panigale V4",
+        discussion: `
+            The Ducati Panigale V4 represents the connection between Ducati's
+            racing heritage and its road-going superbikes. Its V4 engine produces
+            enormous performance while giving the motorcycle a distinctive
+            character that separates it from conventional inline-four machines.
+
+            Aerodynamics play an important role in the Panigale's design. The
+            bodywork is shaped to improve stability and manage airflow at high
+            speeds, while modern electronics help the rider control the motorcycle's
+            considerable performance.
+
+            The Panigale V4 is aimed at riders who want an uncompromising
+            superbike experience, particularly those who appreciate precise
+            handling, exotic engineering and the sensation of riding a machine
+            closely related to Ducati's racing technology.
+        `
+    },
+
+    4: {
+        title: "BMW S 1000 RR",
+        discussion: `
+            The BMW S 1000 RR is one of the most technologically sophisticated
+            superbikes in its class. BMW developed it around a high-revving
+            four-cylinder engine and a lightweight chassis designed to perform
+            both on public roads and race circuits.
+
+            Electronics are a major part of the motorcycle's personality.
+            Sophisticated traction control, riding modes, braking systems and
+            electronic chassis technologies allow the rider to manage its power
+            more effectively.
+
+            Despite its intimidating performance figures, the S 1000 RR is also
+            known for being relatively approachable for a modern litre-class
+            superbike. It demonstrates how electronics can make extreme
+            performance more usable without removing the excitement.
+        `
+    },
+
+    5: {
+        title: "Ford Mustang",
+        discussion: `
+            The Ford Mustang is one of the most recognizable names in American
+            automotive history. Unlike many performance cars that focus almost
+            entirely on lap times, the Mustang has traditionally combined
+            performance with everyday usability and strong visual identity.
+
+            The V8-powered versions remain particularly important to enthusiasts.
+            Their large-displacement engine provides the deep exhaust note and
+            strong torque that have become closely associated with American
+            muscle cars.
+
+            Modern Mustangs also demonstrate how the traditional muscle-car
+            formula has evolved. Advanced suspension systems, electronics and
+            transmission technology allow the car to offer considerably more
+            control and precision than earlier generations.
+        `
+    },
+
+    6: {
+        title: "Yamaha R1",
+        discussion: `
+            The Yamaha YZF-R1 is one of the motorcycles that helped redefine the
+            modern superbike. Its development has been heavily influenced by
+            Yamaha's racing technology, resulting in a motorcycle that emphasizes
+            high-revving performance, compact dimensions and sophisticated
+            electronics.
+
+            The inline-four engine gives the R1 its distinctive combination of
+            strong top-end performance and an unmistakable exhaust character.
+            Its chassis is designed around precise cornering and stability when
+            ridden aggressively.
+
+            The R1 has become an important motorcycle for enthusiasts because it
+            demonstrates how closely road-going superbikes can approach the
+            technology and performance philosophy of racing machines.
+        `
+    },
+
+    7: {
+        title: "Lamborghini Huracán",
+        discussion: `
+            The Lamborghini Huracán is a dramatic Italian supercar designed to
+            deliver both visual theatre and serious performance. Its naturally
+            aspirated V10 is one of the defining elements of the car, providing
+            a linear power delivery and an unmistakable high-revving soundtrack.
+
+            Lamborghini also placed considerable emphasis on the Huracán's
+            chassis and four-wheel-drive systems. The result is a car capable of
+            putting its considerable power onto the road while remaining stable
+            during aggressive acceleration.
+
+            Beyond its performance, the Huracán is an automotive design statement.
+            Its sharp bodywork, low driving position and dramatic proportions make
+            it one of the most recognizable modern supercars.
+        `
+    },
+
+    8: {
+        title: "Ferrari 488 GTB",
+        discussion: `
+            The Ferrari 488 GTB marked a significant transition for Ferrari's
+            mid-engine V8 sports-car lineage by introducing turbocharging while
+            retaining the company's emphasis on responsiveness and performance.
+
+            Its twin-turbocharged V8 delivers substantial power across a wide
+            portion of the rev range, allowing the car to accelerate aggressively
+            while remaining highly usable outside the racetrack.
+
+            Ferrari also developed advanced aerodynamic systems around the 488.
+            Air channels throughout the body help generate downforce while
+            maintaining the efficiency necessary for high-speed performance.
+            The result is a supercar that combines Italian design with extremely
+            sophisticated engineering.
+        `
+    },
+
+    9: {
+        title: "Audi R8",
+        discussion: `
+            The Audi R8 occupies an unusual position in the supercar world because
+            it combines exotic performance with a reputation for everyday usability.
+            Its naturally aspirated V10 provides a direct connection between the
+            driver's inputs and the engine's response.
+
+            Audi's quattro all-wheel-drive technology gives the R8 considerable
+            traction, particularly when accelerating out of corners. The aluminum
+            intensive construction also helps maintain a balance between strength
+            and weight.
+
+            The R8 has become significant because it made supercar performance
+            feel less intimidating and more usable. It is an exotic machine that
+            can still behave like a relatively civilized road car.
+        `
+    },
+
+    10: {
+        title: "Nissan GT-R",
+        discussion: `
+            The Nissan GT-R became famous for challenging much more expensive
+            performance cars with sophisticated engineering and extraordinary
+            acceleration. Its twin-turbocharged V6 works together with an
+            advanced all-wheel-drive system and dual-clutch transmission.
+
+            Rather than relying purely on engine power, the GT-R uses electronics,
+            traction management and chassis engineering to transfer that power
+            effectively to the road.
+
+            The car has also developed a legendary reputation within enthusiast
+            culture. Its combination of Japanese engineering, aggressive styling
+            and enormous tuning potential has made the GT-R one of the most
+            recognizable performance cars of its generation.
+        `
+    },
+
+    11: {
+        title: "McLaren 720S",
+        discussion: `
+            The McLaren 720S is built around the idea that low weight and
+            aerodynamic efficiency are just as important as raw engine output.
+            Its twin-turbocharged V8 provides extraordinary acceleration while
+            the lightweight carbon-fiber architecture keeps the overall package
+            focused.
+
+            The car's aerodynamic design is particularly notable. McLaren uses
+            carefully shaped body surfaces and air channels to manage airflow
+            around the vehicle while generating stability at high speed.
+
+            Inside, the 720S maintains a driver-oriented philosophy with a
+            cockpit designed to emphasize visibility and connection with the
+            road. It is a machine aimed at drivers who prioritize performance
+            engineering over luxury alone.
+        `
+    },
+
+    12: {
+        title: "Mercedes-AMG GT",
+        discussion: `
+            The Mercedes-AMG GT combines the traditional grand-tourer concept
+            with modern AMG performance engineering. Its twin-turbocharged V8
+            delivers strong acceleration while the car maintains the refinement
+            expected from a premium Mercedes-Benz product.
+
+            Unlike a dedicated track-focused sports car, the AMG GT is designed
+            to be comfortable enough for longer journeys. Its interior, technology
+            and chassis tuning reflect this dual purpose.
+
+            The result is a performance car that sits between a pure sports car
+            and a luxury grand tourer, offering serious speed without sacrificing
+            comfort and sophistication.
+        `
+    },
+
+    13: {
+        title: "Chevrolet Corvette C8",
+        discussion: `
+            The Corvette C8 represented a major change in Chevrolet's sports-car
+            history because the Corvette moved to a mid-engine layout. Placing
+            the engine behind the driver significantly changed the car's weight
+            distribution and handling characteristics.
+
+            The naturally aspirated V8 remains central to the Corvette experience,
+            delivering strong torque and an unmistakable American character.
+            The dual-clutch transmission also allows rapid gear changes while
+            making the car easier to drive in everyday conditions.
+
+            One of the C8's biggest achievements is making a mid-engine sports
+            car with exotic proportions available at a price considerably below
+            many European competitors.
+        `
+    },
+
+    14: {
+        title: "Toyota GR Supra",
+        discussion: `
+            The Toyota GR Supra represents Toyota's return to the serious
+            rear-wheel-drive sports-coupe market. The car emphasizes a compact
+            body, low center of gravity and turbocharged straight-six performance.
+
+            Its chassis is designed around balanced handling rather than simply
+            maximizing horsepower. Rear-wheel drive gives experienced drivers
+            considerable control over how the car behaves during acceleration
+            and cornering.
+
+            The Supra also carries considerable cultural importance because
+            previous generations became icons among Japanese-car enthusiasts.
+            The modern GR Supra continues that legacy while introducing modern
+            performance technology.
+        `
+    },
+
+    15: {
+        title: "Kawasaki Ninja H2",
+        discussion: `
+            The Kawasaki Ninja H2 stands apart from conventional superbikes because
+            of its supercharged engine. Rather than relying on a naturally
+            aspirated intake system or conventional turbocharging, Kawasaki uses
+            a mechanically driven supercharger to force additional air into the
+            engine.
+
+            This produces a distinctive power delivery and gives the motorcycle
+            exceptional acceleration. Its aggressive aerodynamic bodywork also
+            reflects Kawasaki's focus on high-speed stability.
+
+            The Ninja H2 is less about being a conventional sportbike and more
+            about demonstrating what modern motorcycle engineering can accomplish
+            when performance is pushed to an extreme.
+        `
+    },
+
+    16: {
+        title: "Honda CBR1000RR-R",
+        discussion: `
+            The Honda CBR1000RR-R Fireblade was developed with strong influence
+            from Honda's racing program. Its inline-four engine and aerodynamic
+            bodywork are designed around high-speed circuit performance.
+
+            Honda's engineering philosophy focuses heavily on balance. Engine
+            performance, braking, chassis response and electronics are developed
+            to work together rather than relying on power alone.
+
+            The result is a superbike that represents Honda's interpretation of
+            modern litre-class performance, combining racing-inspired technology
+            with the requirements of a road-legal motorcycle.
+        `
+    },
+
+    17: {
+        title: "Suzuki Hayabusa",
+        discussion: `
+            The Suzuki Hayabusa became famous as one of the world's most
+            recognizable high-speed motorcycles. Its name and aerodynamic shape
+            are closely associated with the pursuit of extreme motorcycle speed.
+
+            Unlike a lightweight track-focused superbike, the Hayabusa emphasizes
+            high-speed stability and long-distance performance. Its large
+            displacement engine produces strong acceleration throughout the
+            rev range.
+
+            Over several generations, Suzuki has refined the Hayabusa with
+            electronic rider aids, improved aerodynamics and modern chassis
+            technology while preserving its distinctive identity.
+        `
+    },
+
+    18: {
+        title: "KTM 1290 Super Duke R",
+        discussion: `
+            The KTM 1290 Super Duke R takes the naked-bike concept and pushes it
+            toward extreme performance. Its large V-twin engine produces enormous
+            torque, giving the motorcycle strong acceleration without requiring
+            extremely high engine speeds.
+
+            The absence of extensive aerodynamic bodywork exposes the mechanical
+            character of the motorcycle and gives the rider a more direct
+            connection to the environment.
+
+            KTM also places considerable emphasis on lightweight construction
+            and aggressive chassis tuning. The result is a motorcycle designed
+            primarily for riders who value immediate response and raw character.
+        `
+    },
+
+    19: {
+        title: "Triumph Street Triple",
+        discussion: `
+            The Triumph Street Triple has earned a strong reputation as one of
+            the most entertaining middleweight naked motorcycles. Its three-
+            cylinder engine sits between the character of a twin and the
+            high-revving nature of a four-cylinder engine.
+
+            The motorcycle's relatively compact dimensions and responsive chassis
+            make it particularly suited to technical roads and urban riding.
+            It offers enough performance to be exciting without reaching the
+            intimidating levels of a litre-class superbike.
+
+            This balance has helped the Street Triple become an important model
+            within Triumph's modern performance lineup.
+        `
+    },
+
+    20: {
+        title: "Harley-Davidson Sportster",
+        discussion: `
+            The Harley-Davidson Sportster has a long history within American
+            motorcycle culture. Its traditional formula centers around a
+            V-twin engine, relaxed ergonomics and unmistakable cruiser styling.
+
+            Unlike a high-performance superbike, the Sportster is about the
+            experience of riding rather than outright acceleration or cornering
+            speed. Its engine character, low seating position and visual presence
+            are central to its appeal.
+
+            Modern versions of the Sportster lineage demonstrate how Harley-
+            Davidson has attempted to combine its traditional identity with
+            contemporary engineering and performance.
+        `
+    },
+
+    21: {
+        title: "Ford F-150",
+        discussion: `
+            The Ford F-150 is one of the most important pickup trucks in the
+            North American market. Its popularity comes from its ability to serve
+            several roles at once, including work, towing, transportation and
+            recreational driving.
+
+            Ford offers the F-150 with multiple powertrain choices, allowing
+            buyers to prioritize fuel efficiency, performance, towing or general
+            usability depending on configuration.
+
+            The truck is also available with sophisticated towing technologies,
+            useful cargo features and off-road packages. This versatility is one
+            of the main reasons the F-150 has remained such an influential pickup.
+        `
+    },
+
+    22: {
+        title: "RAM 1500",
+        discussion: `
+            The RAM 1500 combines traditional full-size pickup capability with
+            an emphasis on interior comfort and refinement. It is designed for
+            people who may use their truck for demanding work during the week
+            while also expecting it to function as a comfortable everyday vehicle.
+
+            Its modern powertrain lineup includes turbocharged engines designed
+            to deliver strong torque and towing capability.
+
+            The RAM's interior is another major part of its identity. Large
+            displays, comfortable seating and practical storage solutions help
+            distinguish it from pickups that focus almost entirely on utility.
+        `
+    },
+
+    23: {
+        title: "Chevrolet Silverado 1500",
+        discussion: `
+            The Chevrolet Silverado 1500 is built around the traditional
+            full-size American pickup formula: strong engines, substantial
+            towing capability and a durable body designed for demanding work.
+
+            Chevrolet provides several engine configurations, including
+            turbocharged gasoline engines and a Duramax diesel option. This
+            allows the Silverado to be configured for different combinations
+            of efficiency, payload and towing requirements.
+
+            The Silverado is equally at home on construction sites, highways
+            and rural roads, making versatility one of its defining qualities.
+        `
+    },
+
+    24: {
+        title: "Toyota Tacoma",
+        discussion: `
+            The Toyota Tacoma has developed a particularly strong reputation
+            among off-road enthusiasts. Its midsize dimensions make it easier
+            to maneuver on narrow trails while still providing useful cargo
+            and towing capability.
+
+            Modern Tacoma models combine turbocharged power with four-wheel-drive
+            systems and specialized off-road configurations. Features such as
+            increased ground clearance and terrain-focused suspension help the
+            truck handle challenging surfaces.
+
+            Reliability, practicality and a large enthusiast community have
+            contributed heavily to the Tacoma's long-running popularity.
+        `
+    },
+
+    25: {
+        title: "GMC Sierra 1500",
+        discussion: `
+            The GMC Sierra 1500 occupies a premium position within the full-size
+            pickup market. It combines the fundamental capability expected from
+            a work truck with a more upscale design and interior environment.
+
+            Powerful V8 and diesel options make the Sierra suitable for towing
+            heavy trailers and carrying substantial loads, while modern trailering
+            systems make managing a large trailer easier.
+
+            Higher trim levels move the Sierra closer to the luxury segment,
+            demonstrating how modern pickups have evolved far beyond their
+            traditional work-truck origins.
+        `
+    },
+
+    26: {
+        title: "Ford Ranger Raptor",
+        discussion: `
+            The Ranger Raptor takes the midsize pickup formula and transforms it
+            into a dedicated off-road performance machine. Instead of simply
+            increasing engine output, Ford modifies the suspension, chassis,
+            tires and drivetrain to withstand aggressive off-road driving.
+
+            Its twin-turbocharged V6 provides strong acceleration, while the
+            specialized suspension allows the truck to absorb rough terrain at
+            considerably higher speeds than a conventional pickup.
+
+            The Raptor is particularly appealing to enthusiasts who want the
+            practicality of a pickup without giving up the excitement of a
+            performance vehicle.
+        `
+    },
+
+    27: {
+        title: "Toyota Tundra",
+        discussion: `
+            The Toyota Tundra is Toyota's full-size answer to the large American
+            pickup market. Its modern powertrains emphasize turbocharged torque
+            and towing capability while maintaining the durability expected from
+            a truck designed for demanding use.
+
+            The available hybrid powertrain adds another dimension by combining
+            electric assistance with the gasoline engine. This approach provides
+            strong low-end torque while improving overall power delivery.
+
+            Off-road variants also give the Tundra considerable capability away
+            from paved roads, making it useful for both work and recreation.
+        `
+    },
+
+    28: {
+        title: "Nissan Frontier",
+        discussion: `
+            The Nissan Frontier occupies the practical end of the midsize pickup
+            segment. Its design focuses on straightforward truck capability,
+            traditional rear-drive architecture and a strong V6 powertrain.
+
+            Four-wheel-drive versions provide additional capability for rough
+            terrain, while the relatively compact dimensions make the Frontier
+            easier to maneuver than a full-size pickup.
+
+            The Frontier is a good example of how midsize trucks can provide
+            useful towing, cargo and off-road functionality without the size of
+            larger American pickups.
+        `
+    },
+
+    29: {
+        title: "Chevrolet Colorado ZR2",
+        discussion: `
+            The Colorado ZR2 is Chevrolet's performance-oriented interpretation
+            of the midsize pickup. It is designed specifically for drivers who
+            expect their truck to spend significant time away from paved roads.
+
+            Specialized suspension components, increased ground clearance,
+            aggressive tires and four-wheel-drive hardware help the ZR2 tackle
+            rocks, mud, sand and uneven trails.
+
+            What makes the ZR2 interesting is that it remains practical enough
+            for everyday driving while incorporating hardware normally associated
+            with dedicated off-road vehicles.
+        `
+    },
+
+    30: {
+        title: "Rivian R1T",
+        discussion: `
+            The Rivian R1T represents a different direction for the pickup
+            market by combining electric propulsion with traditional truck
+            utility. Electric motors provide immediate torque, which is
+            particularly useful when accelerating from a standstill or climbing
+            difficult terrain.
+
+            The R1T was designed around adventure and outdoor use, with features
+            intended to make carrying equipment and exploring remote areas easier.
+            Its electric architecture also allows Rivian to provide sophisticated
+            control over individual wheels.
+
+            More broadly, the R1T demonstrates how the pickup category is
+            evolving as electric powertrains become increasingly capable of
+            replacing conventional gasoline and diesel systems.
+        `
+    }
+
+};
+
+
+
+/*
+    HOME PAGE
+*/
+
+function showHome() {
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+    document.getElementById("app").innerHTML = `
+
+        <section class="hero" id="home">
+
+            <div>
+
+                <div class="hero-tag">
+                    AUTOMOTIVE COLLECTION / 2026
+                </div>
+
+                <h1>
+                    MACHINES<br>
+                    THAT <span>ARE EXOTIC!</span>
+                </h1>
+
+                <p>
+                    Explore a curated collection of performance cars,
+                    legendary motorcycles and modern machines built
+                    for people who love the luxary to ride along on a royal ride.
+                </p>
+
+                <a href="#vehicles" class="hero-btn">
+                    EXPLORE COLLECTION →
+                </a>
+
+            </div>
+
+
+            <div class="featured">
+
+                <img src="${vehicles[0].image}">
+
+                <div class="feature-info">
+
+                    <small>FEATURED MACHINE</small>
+
+                    <h2>
+                        ${vehicles[0].name}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+
+        <div class="stats">
+
+            <div class="stat">
+                <strong>${vehicles.length}</strong>
+                <span>VEHICLES</span>
+            </div>
+
+            <div class="stat">
+                <strong>${vehicles.filter(v => v.type === "car").length}</strong>
+                <span>CARS</span>
+            </div>
+
+            <div class="stat">
+                <strong>${vehicles.filter(v => v.type === "bike").length}</strong>
+                <span>BIKES</span>
+            </div>
+            <div class="stat">
+            
+            <strong>${vehicles.filter(v => v.type === "truck").length}</strong>
+				<span>TRUCKS</span>
+			</div>
+            
+            <div class="stat">
+                <strong>14</strong>
+                <span>BRANDS</span>
+            </div>
+
+        </div>
+
+
+
+        <section class="section" id="vehicles">
+
+            <div class="section-head">
+
+                <div>
+                    <div class="hero-tag">
+                        THE COLLECTION
+                    </div>
+
+                    <h2>
+                        Choose Your Machine
+                    </h2>
+                </div>
+
+                <p>
+                    Performance. Design. Engineering.
+                </p>
+
+            </div>
+
+
+            <input
+                class="search"
+                type="text"
+                placeholder="Search vehicles..."
+                oninput="searchVehicles(this.value)"
+            >
+			<div class="filters">
+				<button class="active" onclick="filterVehicles('all', this)">
+					ALL
+				</button>
+				<button onclick="filterVehicles('car', this)">
+					CARS
+				</button>
+				<button onclick="filterVehicles('bike', this)">
+					BIKES
+				</button>
+				<button onclick="filterVehicles('truck', this)">
+					TRUCKS & PICKUPS
+				</button>
+			</div>
+            <div class="vehicle-grid" id="vehicleGrid">
+
+                ${renderVehicles(vehicles)}
+
+            </div>
+
+        </section>
+
+
+        <section class="about" id="about">
+
+            <div class="hero-tag">
+                ABOUT DRIVE
+            </div>
+
+            <h2 style="font-size:40px;margin-bottom:20px;">
+                Built Around Machines
+            </h2>
+
+            <p>
+                DRIVE is a digital showcase for machines that deserve
+                attention. From precision German engineering to raw
+                American muscle and screaming Italian superbikes,
+                discover the machines that define automotive culture.
+            </p>
+
+        </section>
+
+
+        <footer>
+
+            <div>
+                <strong>AutoDisk.</strong> — automobiles infoHoard
+            </div>
+
+            <div>
+                © 2026 AutoDisk
+            </div>
+
+        </footer>
+    `;
+}
+
+
+/*
+    VEHICLE CARDS
+*/
+
+function renderVehicles(list) {
+
+    return list.map(vehicle => `
+
+        <article class="vehicle">
+
+            <div class="vehicle-img">
+
+                <img src="${vehicle.image}">
+
+                <span class="vehicle-type">
+                    ${vehicle.category}
+                </span>
+
+            </div>
+
+
+            <div class="vehicle-body">
+
+                <h3>
+                    ${vehicle.name}
+                </h3>
+
+                <p>
+                    ${vehicle.description}
+                </p>
+
+
+                <div class="specs">
+
+                    <div class="spec">
+                        ENGINE
+                        <strong>${vehicle.engine}</strong>
+                    </div>
+
+                    <div class="spec">
+                        POWER
+                        <strong>${vehicle.power}</strong>
+                    </div>
+
+                    <div class="spec">
+                        0–100
+                        <strong>${vehicle.acceleration}</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="vehicle-footer">
+
+                    <span class="price">
+                        ${vehicle.price}
+                    </span>
+
+                    <a
+                        class="details"
+                        onclick="showVehicle(${vehicle.id})"
+                    >
+                        VIEW →
+                    </a>
+
+                </div>
+
+            </div>
+
+        </article>
+
+    `).join("");
+
+}
+
+
+/*
+    FILTERING
+*/
+
+function filterVehicles(type, button) {
+
+    document.querySelectorAll(".filters button")
+        .forEach(btn => btn.classList.remove("active"));
+
+    button.classList.add("active");
+
+    const filtered = type === "all"
+        ? vehicles
+        : vehicles.filter(vehicle => vehicle.type === type);
+
+    document.getElementById("vehicleGrid").innerHTML =
+        renderVehicles(filtered);
+
+}
+
+
+/*
+    SEARCH
+*/
+
+function searchVehicles(value) {
+
+    value = value.toLowerCase();
+
+    const filtered = vehicles.filter(vehicle =>
+        vehicle.name.toLowerCase().includes(value) ||
+        vehicle.category.toLowerCase().includes(value)
+    );
+
+    document.getElementById("vehicleGrid").innerHTML =
+        renderVehicles(filtered);
+
+}
+
+
+/*
+    VEHICLE INFO COMPONENT
+*/
+
+function showVehicle(id) {
+
+    const vehicle = vehicles.find(v => v.id === id);
+
+    if (!vehicle) return;
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+
+    document.getElementById("app").innerHTML = `
+
+        <section class="detail-page">
+
+            <button
+                class="back-button"
+                onclick="showHome()"
+            >
+                ← BACK TO COLLECTION
+            </button>
+
+
+            <div class="detail-hero">
+
+
+                <div>
+
+                    <img
+                        class="detail-image"
+                        src="${vehicle.image}"
+                    >
+
+                </div>
+
+
+                <div class="detail-info">
+
+                    <div class="detail-label">
+                        ${vehicle.category}
+                    </div>
+
+                    <h1>
+                        ${vehicle.name}
+                    </h1>
+
+                    <div class="detail-discussion">
+
+    <div class="detail-label">
+        ABOUT THE MACHINE
+    </div>
+
+    ${vehicleDiscussions[vehicle.id].discussion
+        .trim()
+        .split(/\n\s*\n/)
+        .map(paragraph => `<p>${paragraph.trim()}</p>`)
+        .join("")
+    }
+
+</div>
+
+                    <div class="detail-specs">
+
+                        <div class="detail-spec">
+                            <span>ENGINE</span>
+                            <strong>${vehicle.engine}</strong>
+                        </div>
+
+                        <div class="detail-spec">
+                            <span>POWER</span>
+                            <strong>${vehicle.power}</strong>
+                        </div>
+
+                        <div class="detail-spec">
+                            <span>0–100 KM/H</span>
+                            <strong>${vehicle.acceleration}</strong>
+                        </div>
+
+                        <div class="detail-spec">
+                            <span>TOP SPEED</span>
+                            <strong>${vehicle.topSpeed}</strong>
+                        </div>
+
+                        <div class="detail-spec">
+                            <span>TRANSMISSION</span>
+                            <strong>${vehicle.transmission}</strong>
+                        </div>
+
+                        <div class="detail-spec">
+                            <span>DRIVETRAIN</span>
+                            <strong>${vehicle.drivetrain}</strong>
+                        </div>
+
+                    </div>
+
+
+                    <div class="detail-price">
+                        ${vehicle.price}
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <footer>
+
+            <div>
+                <strong>AutoDisk.</strong> — automobiles infoHoard
+            </div>
+
+            <div>
+                © 2026 AutoDisk
+            </div>
+
+        </footer>
+
+    `;
+
+}
+
+
+/*
+    INITIAL PAGE
+*/
+
+showHome();
+
+</script>
+
+</body>
+</html>
